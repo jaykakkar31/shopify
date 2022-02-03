@@ -17,6 +17,17 @@ const OrderScreen = () => {
 		});
 	}, [dispatch]);
 
+
+    
+	if (orders.length == 0) {
+		return (
+			<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+				<Text style={{ fontFamily: "open-sans-bold", fontSize: 16 }}>
+					No orders found, maybe start adding some!
+				</Text>
+			</View>
+		);
+	}
 	return isLoading ? (
 		<View style={{flex:1,justifyContent:"center",alignItems:"center"}}>
 			<ActivityIndicator color={Colors.primary} size={"large"}  />

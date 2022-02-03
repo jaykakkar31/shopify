@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { Provider } from "react-redux";
 import store from "./store/store";
@@ -9,15 +8,23 @@ import { useState } from "react";
 import { LogBox } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { enableScreens } from "react-native-screens";
-
+import NavigationContainer from "./navigation/NavigationContainer";
+import * as Notification from "expo-notifications";
 const fetchFonts = () => {
 	return Font.loadAsync({
 		"open-sans": require("./assets/fonts/OpenSans-Regular.ttf"),
 		"open-sans-bold": require("./assets/fonts/OpenSans-Bold.ttf"),
 	});
-};	enableScreens();
+};
+enableScreens();
 
-
+Notification.setNotificationHandler({
+	handleNotification: async () => ({
+		shouldShowAlert: true,
+		shouldPlaySound: false,
+		shouldSetBadge: false,
+	}),
+});
 export default function App() {
 	LogBox.ignoreLogs(["Warning: ..."]);
 	LogBox.ignoreAllLogs();
@@ -36,7 +43,7 @@ export default function App() {
 	return (
 		<GestureHandlerRootView style={{ flex: 1 }}>
 			<Provider store={store}>
-				<ProductNavigator />
+				<NavigationContainer />
 			</Provider>
 		</GestureHandlerRootView>
 	);

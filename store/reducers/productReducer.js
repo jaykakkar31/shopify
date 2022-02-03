@@ -14,6 +14,7 @@ const initialState = {
 export const productReducer = (state = initialState, action) => {
 	switch (action.type) {
 		case SET_PRODUCTS:
+            console.log(action.userProducts,"REDUCER");
 			return {
 				availableProduct: action.payload,
 				userProducts: action.userProducts
@@ -23,6 +24,7 @@ export const productReducer = (state = initialState, action) => {
 			const newProduct = new Products(
 				action.payload.id,
 				action.payload.ownerId,
+                action.payload.ownerPushToken,
 				action.payload.title,
 				action.payload.imageUrl,
 				action.payload.description,
@@ -41,6 +43,7 @@ export const productReducer = (state = initialState, action) => {
 			const updateProduct = new Products(
 				action.pid,
 				state.userProducts[index].ownerId,
+                state.userProducts[index].ownerPushToken,
 				action.payload.title,
 				action.payload.imageUrl,
 				action.payload.description,

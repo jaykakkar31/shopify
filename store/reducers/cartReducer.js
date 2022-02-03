@@ -17,12 +17,14 @@ export const cartReducer = (state = initialState, action) => {
 			const addedProduct = action.payload;
 			const price = Number(addedProduct.price);
 			const title = addedProduct.title;
+            const ownerPushToken=addedProduct.ownerPushToken
 			if (state.items[addedProduct.id]) {
 				// already exist
 				const updateProduct = new CartItems(
 					Number(state.items[addedProduct.id].quantity) + 1,
 					price,
 					title,
+                    ownerPushToken,
 					state.items[addedProduct.id].sum + price
 				);
 				return {

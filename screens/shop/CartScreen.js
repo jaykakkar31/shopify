@@ -6,6 +6,7 @@ import {
 	Button,
 	StyleSheet,
 	ActivityIndicator,
+	Alert,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "../../constants/color";
@@ -17,9 +18,10 @@ const CartScreen = () => {
 	const { items, totalAmount } = cartReducer;
 	const dispatch = useDispatch();
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState();
+	const [error, setError] = useState(null);
 	const cartItems = useSelector((state) => {
 		const transformedCartItems = [];
+        console.log(state.cartReducer.items,"CART");
 		for (const key in state.cartReducer.items) {
 			transformedCartItems.push({
 				productId: key,
@@ -27,28 +29,39 @@ const CartScreen = () => {
 				price: state.cartReducer.items[key].price,
 				quantity: state.cartReducer.items[key].quantity,
 				sum: state.cartReducer.items[key].sum,
+                ownerPushToken:state.cartReducer.items[key].ownerPushToken
 			});
 		}
 		return transformedCartItems.sort((a, b) =>
 			a.productId > b.productId ? 1 : -1
 		);
 	});
+	useEffect(() => {
+		if (error) {
+			Alert.alert("An Error Occured!", error, [
+				{
+					text: "Okay",
+					style: "default",
+					onPress: () => {
+						setError(null);
+						setIsLoading(false);
+					},
+				},
+			]);
+		}
+	},[error]);
 
 	const sendOrder = useCallback(async () => {
 		setIsLoading(true);
-		await dispatch(addOrder(cartItems, totalAmount));
+		try {
+			await dispatch(addOrder(cartItems, totalAmount));
+		} catch (e) {
+			setError(e.message);
+		}
 		setIsLoading(false);
 	}, [isLoading, dispatch]);
-	useEffect(() => {
-		// sendOrder();
-	}, [isLoading]);
-	// if (isLoading) {
-	// 	return (
-	// 		<View>
-	// 			<ActivityIndicator />
-	// 		</View>
-	// 	);
-	// }
+
+
 	return (
 		<View style={styles.screen}>
 			<View style={styles.summary}>

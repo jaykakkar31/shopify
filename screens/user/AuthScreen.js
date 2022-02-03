@@ -5,6 +5,7 @@ import {
 	TextInput,
 	Button,
 	Text,
+	Input,
 	ActivityIndicator,
 	Alert,
 } from "react-native";
@@ -31,15 +32,20 @@ const AuthScreen = (props) => {
 			Alert.alert("An Error Occured!", error, [
 				{
 					text: "Okay",
-					// style: "destructive",
+					style: "default",
+					onPress: () => {
+						setError(null);
+						setIsLoading(false);
+						setCred({ email: "", password: "" });
+					},
 				},
 			]);
 		}
-	}, [error,dispatch]);
+	}, [error]);
 
 	const StateHandler = useCallback(
 		(text, name) => {
-			if (text.trim().length === 0) {
+			if (text?.trim().length === 0) {
 				setValues((prev) => {
 					return { ...prev, [name]: false };
 				});
@@ -52,9 +58,8 @@ const AuthScreen = (props) => {
 							return { ...prev, email: false };
 						});
 					} else {
-						console.log(reg.test(text));
 						setValues((prev) => {
-							return { ...prev, [name]: true };
+							return { ...prev, email: true };
 						});
 					}
 				} else {
@@ -66,45 +71,65 @@ const AuthScreen = (props) => {
 		},
 		[values]
 	);
-	//
-	const submitHandler = async () => {
-		if (values.email == true && values.password == true) {
+	const submitHandler = useCallback(async () => {
+		if (
+			values.email == true &&
+			values.password == true &&
+			cred.password.length != 0 &&
+			cred.email.length != 0
+		) {
 			setIsLoading(true);
 			try {
 				if (isSignUp) {
-					const data = await dispatch(signUp(cred.email, cred.password));
-                    					console.log(data, "RESPONE");
-
+					await dispatch(signUp(cred.email, cred.password));
 				} else {
-					const data = await dispatch(signIn(cred.email, cred.password));
-					console.log(data, "RESPONE");
+					await dispatch(signIn(cred.email, cred.password));
 				}
 				props.navigation.navigate("Shop");
 			} catch (e) {
 				setError(e.message);
-				setIsLoading(false);
 			}
-
+			// setFetch(false);
+			setIsLoading(false);
 			setCred({ email: "", password: "" });
+		} else {
+			if (cred.password.length == 0) {
+				setValues((prev) => {
+					return { ...prev, password: false };
+				});
+			}
+			if (cred.email.length == 0) {
+				setValues((prev) => {
+					return { ...prev, email: false };
+				});
+			}
 		}
-	};
+	}, [cred, dispatch, isLoading, error]);
+
+	// if(!fetch){
+	//     props.navigation.navigate("Shop")
+	// }
 	return (
-		<LinearGradient style={styles.linGrad} colors={["#ffedff", "#ffe3ff"]}>
+		<LinearGradient
+			style={{ alignItems: "center", justifyContent: "center", flex: 1 }}
+			colors={["#ffedff", "#ffe3ff"]}
+		>
 			<LinearGradient colors={["#ffe3ff", "#ffedff"]} style={styles.container}>
 				<ScrollView style={{ flexGrow: 1 }}>
 					<View style={styles.detail}>
 						<Text style={styles.title}>Email</Text>
 						<TextInput
 							style={styles.input}
+							id="email"
 							value={cred.email}
 							keyboardType="email-address"
 							textContentType="emailAddress"
 							placeholder="Enter email"
 							autoCapitalize="none"
+							value={cred.email}
 							onFocus={() => {
 								StateHandler(cred.email, "email");
 							}}
-							errorMessage="Enter valid email address"
 							onChangeText={(text) => {
 								StateHandler(text, "email");
 								setCred((prev) => {
@@ -121,12 +146,14 @@ const AuthScreen = (props) => {
 
 						<TextInput
 							style={styles.input}
+							id="password"
 							keyboardType="default"
 							textContentType="password"
 							secureTextEntry
+							minLength={5}
 							placeholder="Enter password"
 							autoCapitalize="none"
-							errorText="Enter valid password"
+							value={cred.password}
 							onFocus={() => {
 								StateHandler(cred.password, "password");
 							}}
@@ -199,12 +226,7 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontFamily: "open-sans-bold",
-		// fontSize: 18,
-	},
-	linGrad: {
-		alignItems: "center",
-		justifyContent: "center",
-		flex: 1,
+		fontSize: 18,
 	},
 });
 

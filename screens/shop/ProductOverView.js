@@ -44,7 +44,7 @@ const ProductOverView = (props) => {
 		loadProducts().then(() => {
 			setIsLoading(false);
 		});
-	}, [loadProducts]);
+	}, []);
 	useEffect(() => {
 		//if we change data in firebase so to fetch the change data
 		const willFocusSub = props.navigation.addListener(
@@ -54,7 +54,7 @@ const ProductOverView = (props) => {
 		return () => {
 			willFocusSub.remove();
 		};
-	}, [loadProducts]);
+	}, [loadProducts,dispatch]);
 	if (!isLoading && products.length === 0) {
 		return (
 			<View style={styles.load}>

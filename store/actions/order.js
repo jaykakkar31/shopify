@@ -2,9 +2,9 @@ import Orders from "../../models/orders";
 import { ADD_ORDER, SET_ORDERS } from "../constants/constant";
 
 export const fetchOrders = () => {
-	return async (dispatch,getState) => {
+	return async (dispatch, getState) => {
 		try {
-            const userId=getState().auth.userId
+			const userId = getState().authReducer.userId;
 			const response = await fetch(
 				`https://native-shop-cd386-default-rtdb.firebaseio.com/orders/${userId}.json`,
 				{
@@ -53,11 +53,11 @@ export const fetchOrders = () => {
 export const addOrder = (cartItems, totalAmount) => {
 	const date = new Date();
 	return async (dispatch, getState) => {
-		const token = getState().auth.token;
-		const userId = getState().auth.token;
+		const token = getState().authReducer.token;
+		const userId = getState().authReducer.userId;
 		try {
 			const response = await fetch(
-				`https://native-shop-cd386-default-rtdb.firebaseio.com/orders/${userId}.json/${token}`,
+				`https://native-shop-cd386-default-rtdb.firebaseio.com/orders/${userId}.json?auth=${token}`,
 				{
 					method: "POST",
 					headers: { "content-type": "application/json" },
@@ -81,6 +81,29 @@ export const addOrder = (cartItems, totalAmount) => {
 					date: date,
 				},
 			});
+
+			try {
+				for (const item of cartItems) {
+                    		const ownerPushToken = item.ownerPushToken;
+
+					await fetch("https://exp.host/--/api/v2/push/send", {
+						method: "POST",
+						headers: {
+							Accept: "application/json",
+							"Accent-Encoding": "gzip,deflate",
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							to: ownerPushToken,
+							data: { extraData: "some data" },
+							title: "Order was placed",
+							body: item.title,
+						}),
+					});
+				}
+			} catch (e) {
+				console.log(e);
+			}
 		} catch (e) {
 			throw e;
 		}

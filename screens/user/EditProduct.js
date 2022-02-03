@@ -36,6 +36,13 @@ const EditProduct = (props) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState(null);
 	const dispatch = useDispatch();
+
+	useEffect(() => {
+		if (error) {
+			Alert.alert("An error occured!", error, [{ text: "Okay" }]);
+		}
+	}, [error]);
+
 	const submitHandler = useCallback(async () => {
 		if (
 			title.trim().length == 0 &&
@@ -117,14 +124,12 @@ const EditProduct = (props) => {
 			});
 		}
 	};
-	useEffect(() => {
-		if (error) {
-			Alert.alert("An error occured!", error, [{ text: "Okay" }]);
-		}
-	});
+
 	useEffect(() => {
 		props.navigation.setParams({ submit: submitHandler });
 	}, [submitHandler]);
+
+    
 	if (isLoading) {
 		return (
 			<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
